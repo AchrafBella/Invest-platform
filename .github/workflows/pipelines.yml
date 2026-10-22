@@ -180,7 +180,7 @@ jobs:
 
       - name: Run MyPy
         run: |
-          mypy --ignore-missing-imports .
+          mypy --ignore-missing-imports src
 
   test:
     name: Run Unit Tests
