@@ -160,7 +160,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: src
-      MYPYPATH: src
     needs: [gitleaks, semgrep, pip-audit, ruff, bandit, black, lint]
 
     steps:
