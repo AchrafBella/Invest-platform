@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./database:/app/database
+      - ./logs:/app/logs
+    command: >
+      sh -c "python -c 'from database_manager import DatabaseManager; DatabaseManager()' &&
+      python -m uvicorn api.api:app --host 0.0.0.0 --port 8000"

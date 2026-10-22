@@ -1,0 +1,202 @@
+name: pipelines
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  gitleaks:
+    name: Detect Secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+
+  semgrep:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install semgrep
+
+      - name: Run Semgrep
+        run: |
+          semgrep scan --config p/sql-injection .
+
+  pip-audit:
+    name: Audit Python Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+          cache: "pip"
+
+      - name: Install pip-audit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pip-audit
+
+      - name: Audit dependencies
+        run: pip-audit --requirement requirements.txt
+
+  ruff:
+    name: Ruff Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+
+      - name: Install Ruff
+        run: python -m pip install ruff
+
+      - name: Check source
+        run: ruff check src
+
+  bandit:
+    name: Bandit Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+
+      - name: Install Bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[toml]==1.9.4
+
+      - name: Run Bandit
+        run: |
+          bandit -r src -ll -f txt
+
+  black:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+
+      - name: Install formatters
+        run: |
+          python -m pip install --upgrade pip
+          pip install black==25.1.0
+
+      - name: Check Black formatting
+        run: |
+          black --check src
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint==4.0.5
+
+      - name: Run Pylint
+        run: |
+          pylint --source-roots=src --max-args=7 --max-positional-arguments=7 \
+            --disable=duplicate-code --fail-under=7.5 src
+
+  mypy:
+    name: Run MyPy
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+      MYPYPATH: src
+    needs: [gitleaks, semgrep, pip-audit, ruff, bandit, black, lint]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mypy==1.5.1
+
+      - name: Run MyPy
+        run: |
+          mypy --ignore-missing-imports .
+
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: [mypy]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10.7"
+          cache: "pip"
+
+      - name: Run tests
+        run: |
+          python -m unittest discover -s tests -t .
