@@ -4,16 +4,9 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.schemas import (
-    AddPortfolioInput,
-    AddPortfolioResponse,
-    CreateUserPortfolioInput,
-    CreateUserPortfolioResponse,
-    MarketOrderInput,
-    MarketOrderResponse,
     PortfolioIdResponse,
     UserIdResponse,
 )
-from services.trading_service import TradingService
 from services.portfolio_service import PortfolioService
 from services.user_service import UserService
 
@@ -34,7 +27,9 @@ bot_router = APIRouter(prefix="/api/v1/bots")
 trading_router = APIRouter(prefix="/api/v1/trading")
 
 
-@user_router.get("/{user_name}", status_code=200, tags=["Users"], response_model=UserIdResponse)
+@user_router.get(
+    "/{user_name}", status_code=200, tags=["Users"], response_model=UserIdResponse
+)
 def get_user(user_name: str) -> UserIdResponse:
     try:
         user_id = UserService().get_user_id(user_name)
@@ -47,7 +42,10 @@ def get_user(user_name: str) -> UserIdResponse:
         user_id=user_id,
     )
 
-@user_router.post("/{user_name}", status_code=200, tags=["Users"], response_model=UserIdResponse)
+
+@user_router.post(
+    "/{user_name}", status_code=200, tags=["Users"], response_model=UserIdResponse
+)
 def create_user(user_name: str) -> UserIdResponse:
     try:
         user_id = UserService().create_user(user_name)
@@ -61,7 +59,12 @@ def create_user(user_name: str) -> UserIdResponse:
     )
 
 
-@portfolio_router.get("/{user_id}/{portfolio_name}", status_code=200, tags=["Portfolios"], response_model=PortfolioIdResponse)
+@portfolio_router.get(
+    "/{user_id}/{portfolio_name}",
+    status_code=200,
+    tags=["Portfolios"],
+    response_model=PortfolioIdResponse,
+)
 def get_portfolio(user_id: int, portfolio_name: str) -> PortfolioIdResponse:
     try:
         portfolio_id = PortfolioService().get_portfolio_id(user_id, portfolio_name)
@@ -74,8 +77,16 @@ def get_portfolio(user_id: int, portfolio_name: str) -> PortfolioIdResponse:
         portfolio_id=portfolio_id,
     )
 
-@portfolio_router.post("/{user_id}/{portfolio_name}/{cash}", status_code=200, tags=["Portfolios"], response_model=PortfolioIdResponse)
-def create_portfolio(user_id: int, portfolio_name: str, cash: float) -> PortfolioIdResponse:
+
+@portfolio_router.post(
+    "/{user_id}/{portfolio_name}/{cash}",
+    status_code=200,
+    tags=["Portfolios"],
+    response_model=PortfolioIdResponse,
+)
+def create_portfolio(
+    user_id: int, portfolio_name: str, cash: float
+) -> PortfolioIdResponse:
     try:
         portfolio_id = PortfolioService().create_portfolio(
             user_id, portfolio_name, cash
@@ -88,9 +99,6 @@ def create_portfolio(user_id: int, portfolio_name: str, cash: float) -> Portfoli
         message="Portfolio created successfully",
         portfolio_id=portfolio_id,
     )
-
-
-
 
 
 app.add_middleware(
