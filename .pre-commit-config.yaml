@@ -3,12 +3,26 @@ repos:
     rev: v0.14.0
     hooks:
       - id: ruff
-        args: [--check]
         files: ^src/.*\.py$
 
   - repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
       - id: black
-        args: [--check]
         files: ^src/.*\.py$
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+        files: ^src/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: unit-tests
+        name: Unit tests
+        entry: python -m unittest discover -s tests -t .
+        language: system
+        pass_filenames: false
+        always_run: true
