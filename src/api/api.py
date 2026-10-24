@@ -6,9 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.schemas import (
     PortfolioIdResponse,
     UserIdResponse,
+    MarketOrderInput,
+    MarketOrderResponse,
 )
 from services.portfolio_service import PortfolioService
 from services.user_service import UserService
+from services.trading_service import TradingService
 
 app = FastAPI(
     title="Backend API",
@@ -98,6 +101,30 @@ def create_portfolio(
         error=False,
         message="Portfolio created successfully",
         portfolio_id=portfolio_id,
+    )
+
+
+@trading_router.post(
+    "/", status_code=200, tags=["trading"], response_model=MarketOrderResponse
+)
+def market_order(inputs: MarketOrderInput):
+    try:
+        trading_service = TradingService()
+        trading_service.add_position(
+            user_id=inputs.user_id,
+            portfolio_id=inputs.portfolio_id,
+            side=inputs.side,
+            ticker=inputs.ticker,
+            shares=inputs.shares,
+            price=inputs.price,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return MarketOrderResponse(
+        error=False,
+        message="Market order executed successfully",
+        data=inputs,
     )
 
 

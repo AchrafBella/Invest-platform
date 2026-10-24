@@ -1,0 +1,11 @@
+[tickers]
+
+tickers = [
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META",
+    "TSLA", "NVDA", "NFLX", "JPM", "V",
+    "MC.PA", "AIR.PA", "OR.PA", "SAN.PA", "BNP.PA",
+    "SAP.DE", "SIE.DE", "BMW.DE", "ALV.DE",
+    "VOD.L", "HSBA.L", "SHEL.L",
+    "ASML.AS",
+    "NESN.SW", "NOVN.SW"
+]
