@@ -5,7 +5,6 @@ import os
 
 from repositories.user import UserRepository
 
-LOG_FILE = "logs/tradingplatform.log"
 DATABASE_DIR = "database"
 DB_FILE = os.path.join(DATABASE_DIR, "tradingplatform.db")
 

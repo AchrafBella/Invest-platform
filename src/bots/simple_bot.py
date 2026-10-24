@@ -7,7 +7,6 @@ from dataclasses import dataclass
 
 from bots.tools import fetch_data
 
-LOG_FILE = "logs/tradingplatform.log"
 DATABASE_DIR = "database"
 DB_FILE = os.path.join(DATABASE_DIR, "tradingplatform.db")
 

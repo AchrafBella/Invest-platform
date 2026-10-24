@@ -1,17 +1,21 @@
 """FastAPI routes for users, portfolios, and market orders."""
 
+import logging
+
 from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.schemas import (
-    PortfolioIdResponse,
-    UserIdResponse,
     MarketOrderInput,
     MarketOrderResponse,
+    PortfolioIdResponse,
+    UserIdResponse,
 )
 from services.portfolio_service import PortfolioService
-from services.user_service import UserService
 from services.trading_service import TradingService
+from services.user_service import UserService
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Backend API",

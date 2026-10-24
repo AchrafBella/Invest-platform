@@ -8,7 +8,6 @@ from repositories.portfolio import PortfolioRepository
 from repositories.position import PositionRepository
 from repositories.transaction import TransactionRepository
 
-LOG_FILE = "logs/tradingplatform.log"
 DATABASE_DIR = "database"
 DB_FILE = os.path.join(DATABASE_DIR, "tradingplatform.db")
 
